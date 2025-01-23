@@ -25,39 +25,27 @@
         <div class="search-bar">
             <input type="text" id="search-input" placeholder="Search" onkeypress="searchNews(event)">
         </div>
-        <div class="user-profile">
-            <div class="bell-icon">
-                <img src="trivia/notification_icon.png" alt="Notification" width="25">
-            </div>
-            <div class="settings-icon">
-                <img src="trivia/settings_icon.png" alt="Settings" width="25">
-            </div>
-        </div>
     </header>
 
     <aside class="sidebar" id="sidebar">
         <ul>
-            <li><a href="homepage.html">Home</a></li>
             <li><a href="trivia.html">Trivia</a></li>
-            <li><a href="peoplevoice.html">People's Voice</a></li>
-            <li><a href="submissions.html">Submissions</a></li>
-            <li><a href="bookmarks.html">Bookmarks</a></li>
-            <li><a href="editorialguidelines.html">Editorial Guidelines</a></li>
-            <li><a href="aboutus.html">About Us</a></li>
-            <li><a href="privacysecurity.html">Privacy & Security</a></li>
         </ul>
     </aside>
 
     <div class="overlay" id="overlay"></div>
 
     <main>
-        <section id="news-container">
-            <!-- Content specific to the Trivia Page -->
-            <div class="article">
-                <img src="trivia/sample_news_image.jpg" alt="Trivia Banner" style="width: 100%; height: auto; margin-bottom: 20px;">
-                <h3>THIS IS TRIVIA PAGE</h3>
-                <p>This page contains trivia questions and answers.</p>
+        <section id="trivia-container">
+            <h2>Trivia Quiz</h2>
+            <div id="trivia-question">
+                <p id="question">Loading question...</p>
+                <div id="options">
+                    <!-- Options will be dynamically populated -->
+                </div>
             </div>
+            <button id="submit-answer" disabled>Submit Answer</button>
+            <p id="result-message"></p>
         </section>
     </main>
 

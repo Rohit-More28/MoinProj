@@ -1,34 +1,58 @@
-// Selecting the sidebar and overlay elements
-const sidebar = document.getElementById('sidebar');
-const toggleSidebar = document.getElementById('toggle-sidebar');
-const overlay = document.getElementById('overlay');
+const API_URL = 'https://opentdb.com/api.php?amount=50&category=9&difficulty=medium&type=multiple';
+        const questionElement = document.getElementById('question');
+        const optionsContainer = document.getElementById('options');
+        const submitButton = document.getElementById('submit-answer');
+        const resultMessage = document.getElementById('result-message');
+        let currentQuestion = null;
+        let selectedOptionIndex = null;
 
-// Toggle sidebar visibility when clicking on the toggle button
-toggleSidebar.addEventListener('click', (event) => {
-    event.stopPropagation();  // Stop event from bubbling up to document
-    sidebar.style.left = '0';  // Open sidebar
-    overlay.style.display = 'block';  // Show overlay
-});
+        async function fetchQuestion() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error('Failed to fetch question');
+                const data = await response.json();
+                currentQuestion = data.results[0];
+                displayQuestion();
+            } catch (error) {
+                questionElement.textContent = 'Error loading question.';
+                console.error(error);
+            }
+        }
+        function displayQuestion() {
+            questionElement.textContent = currentQuestion.question;
+            const allOptions = [...currentQuestion.incorrect_answers, currentQuestion.correct_answer];
+            shuffleArray(allOptions); // Shuffle the options for randomness
+            optionsContainer.innerHTML = '';
+            allOptions.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.className = 'option-button';
+                button.onclick = () => selectOption(index);
+                optionsContainer.appendChild(button);
+            });
+            submitButton.disabled = true;
+        }
 
-// Close sidebar when clicking on the overlay
-overlay.addEventListener('click', () => {
-    sidebar.style.left = '-220px';  // Close sidebar
-    overlay.style.display = 'none';  // Hide overlay
-});
+        function selectOption(index) {
+            selectedOptionIndex = index;
+            Array.from(optionsContainer.children).forEach((button, i) => {
+                button.classList.toggle('selected', i === index);
+            });
+            submitButton.disabled = false;
+        }
+        async function submitAnswer() {
+            const selectedAnswer = optionsContainer.children[selectedOptionIndex].textContent;
+            const isCorrect = selectedAnswer === currentQuestion.correct_answer;
+            resultMessage.textContent = isCorrect ? 'Correct! +10 points' : 'Wrong answer.';
+            fetchQuestion();
+        }
 
-// Close sidebar when clicking anywhere outside the sidebar and toggle button
-document.addEventListener('click', (event) => {
-    const isClickInsideSidebar = sidebar.contains(event.target);
-    const isClickInsideToggle = toggleSidebar.contains(event.target);
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
 
-    // If the click is outside the sidebar and toggle button, close the sidebar
-    if (!isClickInsideSidebar && !isClickInsideToggle) {
-        sidebar.style.left = '-220px';  // Close sidebar
-        overlay.style.display = 'none';  // Hide overlay
-    }
-});
-
-// Prevent clicks inside the sidebar from closing it
-sidebar.addEventListener('click', (event) => {
-    event.stopPropagation();  // Stop event from bubbling up to document
-});
+        submitButton.addEventListener('click', submitAnswer);
+        fetchQuestion();
