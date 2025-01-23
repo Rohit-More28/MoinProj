@@ -203,6 +203,133 @@ main {
     background-color: #f1f1f1;
 }
 
+/* Styling for the upvote/downvote buttons */
+.vote-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.vote-container button {
+    font-size: 18px;
+    background: none;
+    border: none;
+    color: #555;
+    cursor: pointer;
+}
+
+.vote-container button:hover {
+    color: #007bff;
+}
+
+.vote-container .vote-count {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Styling for comments section */
+.comments-section {
+    margin-top: 15px;
+    background-color: #f9f9f9;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.comments-section textarea {
+    width: 95%;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+}
+
+.comments-section button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.comments-section button:hover {
+    background-color: #0056b3;
+}
+
+.comments-list {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0;
+}
+
+.comments-list li {
+    background: #f1f1f1;
+    margin-bottom: 5px;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+/* Comment Dialog Styles */
+.comment-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    width: 90%;
+    max-width: 500px;
+    padding: 20px;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.comment-dialog-content {
+    position: relative;
+}
+
+.close-dialog {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 20px;
+    color: #999;
+    font-weight: bold;
+}
+
+.close-dialog:hover {
+    color: #333;
+}
+
+.comments-list {
+    margin-top: 10px;
+    list-style: none;
+    padding: 0;
+    max-height: 150px;
+    overflow-y: auto;
+    border-top: 1px solid #ccc;
+    padding-top: 10px;
+}
+
+.comments-list li {
+    margin-bottom: 10px;
+    padding: 5px 10px;
+    background: #f4f4f4;
+    border-radius: 5px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
 
 
 
