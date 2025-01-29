@@ -3,52 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trivia Page</title>
-    <link rel="stylesheet" href="trivia/triviastyle.css">
+    <title>NewsYork Trivia</title>
+    <link rel="stylesheet" href="homepagestyle.css">
 </head>
 <body>
     <header>
         <div class="left-header">
             <button id="toggle-sidebar">☰</button>
             <div class="logo">
-                <img src="trivia/trivia_logo.jpg" alt="Logo" width="40">
+                <img src="images/logo.jpg" alt="Logo" width="40">
             </div>
         </div>
         <nav class="top-nav">
-            <a href="homepage.html" onclick="fetchNews('politics')">Politics</a>
-            <a href="homepage.html" onclick="fetchNews('business')">Business</a>
-            <a href="homepage.html" onclick="fetchNews('sports')">Sports</a>
-            <a href="homepage.html" onclick="fetchNews('entertainment')">Entertainment</a>
-            <a href="homepage.html" onclick="fetchNews('health')">Health</a>
-            <a href="homepage.html" onclick="fetchNews('technology')">Technology</a>
+            <a href="#" onclick="fetchNews('politics')">Politics</a>
+            <a href="#" onclick="fetchNews('business')">Business</a>
+            <a href="#" onclick="fetchNews('sports')">Sports</a>
+            <a href="#" onclick="fetchNews('entertainment')">Entertainment</a>
+            <a href="#" onclick="fetchNews('health')">Health</a>
+            <a href="#" onclick="fetchNews('technology')">Technology</a>
         </nav>
         <div class="search-bar">
             <input type="text" id="search-input" placeholder="Search" onkeypress="searchNews(event)">
+        </div>
+        <div class="user-profile">
+            <div class="bell-icon">
+                <img src="images/bell-regular-24.png" alt="Notification" width="25">
+            </div>
+            <div class="settings-icon">
+                <button id="settings-button" style="background: none; border: none; cursor: pointer;">
+                    <img src="images/cog-solid-24.png" alt="Settings" width="25">
+                </button>
+            </div>
         </div>
     </header>
 
     <aside class="sidebar" id="sidebar">
         <ul>
+            <li><a href="homepage.html">Home</a></li>
             <li><a href="trivia.html">Trivia</a></li>
+            <li><a href="peoplevoice.html">People's Voice</a></li>
+            <li><a href="submissions.html">Submissions</a></li>
+            <li><a href="bookmarks.html">Bookmarks</a></li>
+            <li><a href="editorialguidelines.html">Editorial Guidelines</a></li>
+            <li><a href="aboutus.html">About Us</a></li>
+            <li><a href="privacysecurity.html">Privacy & Security</a></li>
         </ul>
     </aside>
 
     <div class="overlay" id="overlay"></div>
 
     <main>
-        <section id="trivia-container">
-            <h2>Trivia Quiz</h2>
-            <div id="trivia-question">
-                <p id="question">Loading question...</p>
-                <div id="options">
-                    <!-- Options will be dynamically populated -->
+        <div class="trivia-header">
+            <h2>Test Your Knowledge</h2>
+            <div class="trivia-stats">
+                <div class="total-points">
+                    Total Points: <span id="total-points">0</span>
+                </div>
+                <div class="user-level">
+                    Level: <span id="user-level">1</span>
+                </div>
+                <div class="streak">
+                    Current Streak: <span id="current-streak">0</span>
                 </div>
             </div>
-            <button id="submit-answer" disabled>Submit Answer</button>
-            <p id="result-message"></p>
-        </section>
+            <div class="trivia-nav">
+                <div class="category-group">
+                    <h3>Knowledge</h3>
+                    <button onclick="loadTrivia('general')" class="category-btn">General Knowledge</button>
+                    <button onclick="loadTrivia('books')" class="category-btn">Books & Literature</button>
+                    <button onclick="loadTrivia('history')" class="category-btn">History</button>
+                </div>
+                <div class="category-group">
+                    <h3>Science</h3>
+                    <button onclick="loadTrivia('science')" class="category-btn">Science & Nature</button>
+                    <button onclick="loadTrivia('computers')" class="category-btn">Computers</button>
+                    <button onclick="loadTrivia('mathematics')" class="category-btn">Mathematics</button>
+                </div>
+                <div class="category-group">
+                    <h3>Entertainment</h3>
+                    <button onclick="loadTrivia('movies')" class="category-btn">Movies</button>
+                    <button onclick="loadTrivia('music')" class="category-btn">Music</button>
+                    <button onclick="loadTrivia('television')" class="category-btn">Television</button>
+                </div>
+                <div class="category-group">
+                    <h3>Other</h3>
+                    <button onclick="loadTrivia('sports')" class="category-btn">Sports</button>
+                    <button onclick="loadTrivia('geography')" class="category-btn">Geography</button>
+                    <button onclick="loadTrivia('mythology')" class="category-btn">Mythology</button>
+                </div>
+            </div>
+        </div>
+        <div id="news-container">
+            <!-- Trivia cards will be displayed here -->
+        </div>
     </main>
 
+    <div id="level-up-modal" class="modal">
+        <div class="modal-content">
+            <h2>🎉 Level Up!</h2>
+            <p>Congratulations! You've reached level <span id="new-level">2</span>!</p>
+            <button onclick="closeModal()">Continue</button>
+        </div>
+    </div>
+
     <script src="trivia/triviascript.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
