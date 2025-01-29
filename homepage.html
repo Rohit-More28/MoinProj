@@ -30,7 +30,9 @@
                 <img src="images/bell-regular-24.png" alt="Notification" width="25">
             </div>
             <div class="settings-icon">
-                <img src="images/cog-solid-24.png" alt="Settings" width="25">
+                <button id="settings-button" style="background: none; border: none; cursor: pointer;">
+                    <img src="images/cog-solid-24.png" alt="Settings" width="25">
+                </button>
             </div>
         </div>
     </header>
@@ -52,10 +54,37 @@
 
     <main>
         <section id="news-container">
-            <!-- Example News Article -->
-            <!-- News articles will be dynamically added here -->
+            <!-- News articles will be inserted here -->
+            <div class="article">
+                <img src="/news-image.jpg" alt="News Image">
+                <h3>Sample News Title</h3>
+                <p>Sample description of the news article...</p>
+                <a href="#">Read more</a>
+
+                <!-- Added Section for Upvote, Downvote, Comment, Share -->
+                <div class="news-options">
+                    <button class="upvote">Upvote</button>
+                    <button class="downvote">Downvote</button>
+                    <button class="discuss">Discuss</button>
+                    <button class="share">Share</button>
+                </div>
+            </div>
         </section>
     </main>
+
+    <!-- Settings Sidebar -->
+    <div class="settings-sidebar" id="settings-sidebar">
+        <div class="settings-header">
+            <button class="back-arrow">←</button>
+            <span>Settings</span>
+        </div>
+        <div class="settings-options">
+            <a href="profile.html" class="settings-option">User Profile Settings</a>
+            <a href="settings.html" class="settings-option">General Settings</a>
+            <a href="#" class="settings-option" id="logout-button">Log Out</a>
+        </div>
+    </div>
+    <div class="settings-overlay" id="settings-overlay"></div>
 
     <script src="api.js"></script>
     <script src="script.js"></script>
