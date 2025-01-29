@@ -284,7 +284,7 @@ main {
   transition: all 0.2s ease;
   position: relative;
 }
-
+ 
 .tab:hover {
   color: #000000;
   background-color: rgba(0, 0, 0, 0.03);
