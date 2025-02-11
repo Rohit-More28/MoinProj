@@ -32,3 +32,54 @@ document.addEventListener('click', (event) => {
 sidebar.addEventListener('click', (event) => {
     event.stopPropagation();  // Stop event from bubbling up to document
 });
+
+// Keep the existing sidebar functionality
+
+// Function to display bookmarked articles
+function displayBookmarks() {
+    const bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
+    const newsContainer = document.getElementById("news-container");
+    
+    if (bookmarks.length === 0) {
+        newsContainer.innerHTML = `
+            <div class="article">
+                <h3>No Bookmarks Yet</h3>
+                <p>Your bookmarked articles will appear here. Go to the homepage and click the star icon (☆) to bookmark articles.</p>
+            </div>
+        `;
+        return;
+    }
+
+    newsContainer.innerHTML = "";
+    
+    bookmarks.forEach(article => {
+        const articleElement = document.createElement("div");
+        articleElement.classList.add("article");
+        
+        articleElement.innerHTML = `
+            <img src="${article.urlToImage}" alt="News Image">
+            <h3>${article.title}</h3>
+            <p>${article.description}</p>
+            <a href="${article.url}" target="_blank">Read more</a>
+            <div class="news-options">
+                <button class="remove-bookmark" data-article-title="${article.title}">Remove Bookmark ★</button>
+            </div>
+        `;
+        
+        newsContainer.appendChild(articleElement);
+    });
+}
+
+// Event listener for remove bookmark buttons
+document.addEventListener('click', (event) => {
+    if (event.target.classList.contains('remove-bookmark')) {
+        const articleTitle = event.target.dataset.articleTitle;
+        let bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
+        bookmarks = bookmarks.filter(bookmark => bookmark.title !== articleTitle);
+        localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+        displayBookmarks();
+    }
+});
+
+// Load bookmarks when the page loads
+window.addEventListener('load', displayBookmarks);
