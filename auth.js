@@ -65,25 +65,4 @@ function handleError(error) {
     }
 }
 
-// script.js
-document.addEventListener("DOMContentLoaded", function () {
-    let userRole = localStorage.getItem("userRole");
-    if (!userRole) {
-        userRole = "guest";
-        localStorage.setItem("userRole", userRole);
-    }
-    applyUserRestrictions(userRole);
-});
-
-function applyUserRestrictions(role) {
-    if (role === "guest") {
-        // Hide or disable features for guests
-        document.querySelectorAll(".restricted").forEach(el => el.style.display = "none");
-        // Display sign-in prompt
-        const signInPrompt = document.createElement("div");
-        signInPrompt.className = "sign-in-prompt";
-        signInPrompt.innerHTML = `<p>You are browsing as a guest. <a href="login.html">Sign in</a> for full access.</p>`;
-        document.body.prepend(signInPrompt);
-    }
-}
 
