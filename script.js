@@ -1,8 +1,6 @@
 const profanityFilter = {
-    // Add common inappropriate words to this array
     bannedWords: ['badword1', 'badword2', 'inappropriate', 'vulgar'],
     
-    // Method to check if text contains inappropriate content
     containsProfanity(text) {
         const words = text.toLowerCase().split(/\s+/);
         return this.bannedWords.some(banned => 
@@ -10,62 +8,44 @@ const profanityFilter = {
         );
     },
     
-    // Method to clean text
     clean(text) {
         return text.split(/\s+/)
-            .map(word => {
-                if (this.bannedWords.some(banned => word.toLowerCase().includes(banned))) {
-                    return '*'.repeat(word.length);
-                }
-                return word;
-            })
+            .map(word => this.bannedWords.some(banned => word.toLowerCase().includes(banned)) ? '*'.repeat(word.length) : word)
             .join(' ');
     }
 };
 
-// Selecting the sidebar and overlay elements
+// Check for existing user or set guest mode
+let user = JSON.parse(localStorage.getItem('user')) || { role: "guest" };
+
+// If guest, show default news
+if (user.role === "guest") {
+    fetchNews("New York");  // Load default news category
+}
+
+// Sidebar handling
 const sidebar = document.getElementById('sidebar');
 const toggleSidebar = document.getElementById('toggle-sidebar');
 const overlay = document.getElementById('overlay');
 
-// Toggle sidebar visibility when clicking on the toggle button
 toggleSidebar.addEventListener('click', (event) => {
-    event.stopPropagation();  // Stop event from bubbling up to document
-    sidebar.style.left = '0';  // Open sidebar
-    overlay.style.display = 'block';  // Show overlay
+    event.stopPropagation();
+    sidebar.style.left = '0';
+    overlay.style.display = 'block';
 });
 
-// Close sidebar when clicking on the overlay
 overlay.addEventListener('click', () => {
-    sidebar.style.left = '-220px';  // Close sidebar
-    overlay.style.display = 'none';  // Hide overlay
+    sidebar.style.left = '-220px';
+    overlay.style.display = 'none';
 });
 
-// Close sidebar when clicking anywhere outside the sidebar and toggle button
-document.addEventListener('click', (event) => {
-    const isClickInsideSidebar = sidebar.contains(event.target);
-    const isClickInsideToggle = toggleSidebar.contains(event.target);
-
-    // If the click is outside the sidebar and toggle button, close the sidebar
-    if (!isClickInsideSidebar && !isClickInsideToggle) {
-        sidebar.style.left = '-220px';  // Close sidebar
-        overlay.style.display = 'none';  // Hide overlay
-    }
-});
-
-// Prevent clicks inside the sidebar from closing it
-sidebar.addEventListener('click', (event) => {
-    event.stopPropagation();  // Stop event from bubbling up to document
-});
-
-// Function to fetch and display news articles dynamically
+// Fetch and display news dynamically
 async function fetchNews(category) {
     try {
         const response = await fetch(`https://newsapi.org/v2/everything?q=${encodeURIComponent(category)}&apiKey=ecfccc58d345415bb9818c6612a272aa`);
         const data = await response.json();
-
         const newsContainer = document.getElementById("news-container");
-        newsContainer.innerHTML = ""; // Clear existing articles
+        newsContainer.innerHTML = "";
 
         data.articles.forEach((article) => {
             const articleElement = document.createElement("div");
@@ -84,15 +64,17 @@ async function fetchNews(category) {
                     </div>
                     <button class="discuss">Comments</button>
                     <button class="share">Share</button>
+                    ${user.role === "authenticated" ? `<button class="bookmark" data-article-title="${article.title}">☆</button>` : '<button class="disabled-bookmark" onclick="alert(\'Sign in to bookmark articles\')">☆</button>'}
                 </div>
                 <div class="comments-section" style="display: none;">
-                    <textarea placeholder="Add a comment"></textarea>
-                    <button class="post-comment">Post Comment</button>
+                    <textarea placeholder="Add a comment" ${user.role === "guest" ? 'disabled' : ''}></textarea>
+                    <button class="post-comment" ${user.role === "guest" ? 'onclick="alert(\'Sign in to comment\')"' : ''}>Post Comment</button>
                     <ul class="comments-list"></ul>
                 </div>
             `;
 
             newsContainer.appendChild(articleElement);
+            if (user.role === "authenticated") updateBookmarkIcon(article.title);
         });
     } catch (error) {
         console.error('Error fetching news:', error);
@@ -107,76 +89,34 @@ function searchNews(event) {
     }
 }
 
-// Function to handle upvote/downvote
-function updateVote(button, change) {
-    const voteContainer = button.closest(".vote-container");
-    const voteCountElement = voteContainer.querySelector(".vote-count");
-    let currentVotes = parseInt(voteCountElement.textContent, 10);
-    currentVotes += change;
-    voteCountElement.textContent = currentVotes;
-}
+// Handle bookmarks
+let bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
 
-// Function to toggle the comments section
-function toggleComments(button) {
-    const article = button.closest(".article");
-    const commentsSection = article.querySelector(".comments-section");
-    
-    // Reset other comment sections first
-    document.querySelectorAll(".comments-section").forEach(section => {
-        if (section !== commentsSection) {
-            section.style.display = "none";
-        }
-    });
-    
-    // Toggle the clicked comment section
-    commentsSection.style.display =
-        commentsSection.style.display === "none" || commentsSection.style.display === ""
-            ? "block"
-            : "none";
-}
-
-// Function to add a comment
-function addComment(button) {
-    const commentsSection = button.closest(".comments-section");
-    const textarea = commentsSection.querySelector("textarea");
-    const commentText = textarea.value.trim();
-    
-    if (commentText) {
-        // Check for inappropriate content
-        if (profanityFilter.containsProfanity(commentText)) {
-            alert("Your comment contains inappropriate language. Please revise it.");
-            return;
-        }
-        
-        const commentsList = commentsSection.querySelector(".comments-list");
-        const newComment = document.createElement("li");
-        
-        // Create comment structure
-        newComment.innerHTML = `
-            <div class="comment-content">
-                <span class="comment-text">${commentText}</span>
-                <div class="comment-metadata">
-                    <span class="comment-time">${new Date().toLocaleString()}</span>
-                </div>
-            </div>
-        `;
-        
-        commentsList.appendChild(newComment);
-        textarea.value = ""; // Clear the textarea
+function toggleBookmark(article) {
+    if (user.role === "guest") {
+        alert("Sign in to bookmark articles.");
+        return;
     }
+
+    const isBookmarked = bookmarks.some(bookmark => bookmark.title === article.title);
+    if (isBookmarked) {
+        bookmarks = bookmarks.filter(bookmark => bookmark.title !== article.title);
+    } else {
+        bookmarks.push(article);
+    }
+
+    localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+    updateBookmarkIcon(article.title);
 }
 
-// Function to share the article link
-function shareArticle(button) {
-    const article = button.closest(".article");
-    const articleLink = article.querySelector("a").href;
-    navigator.clipboard.writeText(articleLink)
-        .then(() => {
-            alert("Link copied to clipboard!");
-        })
-        .catch(err => {
-            console.error('Failed to copy link:', err);
-        });
+function updateBookmarkIcon(articleTitle) {
+    const bookmarkButtons = document.querySelectorAll(`[data-article-title="${articleTitle}"]`);
+    const isBookmarked = bookmarks.some(bookmark => bookmark.title === articleTitle);
+    
+    bookmarkButtons.forEach(button => {
+        button.innerHTML = isBookmarked ? '★' : '☆';
+        button.style.color = isBookmarked ? '#ffd700' : '#000';
+    });
 }
 
 // Event delegation for dynamic content
@@ -191,136 +131,7 @@ document.getElementById("news-container").addEventListener("click", (event) => {
         shareArticle(event.target);
     } else if (event.target.classList.contains("post-comment")) {
         addComment(event.target);
-    }
-});
-
-// Settings sidebar functionality
-const settingsButton = document.getElementById('settings-button');
-const settingsSidebar = document.getElementById('settings-sidebar');
-const settingsOverlay = document.getElementById('settings-overlay');
-const backArrow = document.querySelector('.back-arrow');
-const logoutButton = document.getElementById('logout-button');
-
-// Function to open settings sidebar
-function openSettingsSidebar() {
-    settingsSidebar.classList.add('active');
-    settingsOverlay.style.display = 'block';
-}
-
-// Function to close settings sidebar
-function closeSettingsSidebar() {
-    settingsSidebar.classList.remove('active');
-    settingsOverlay.style.display = 'none';
-}
-
-// Event listeners for settings sidebar
-settingsButton.addEventListener('click', (event) => {
-    event.stopPropagation();
-    openSettingsSidebar();
-});
-
-backArrow.addEventListener('click', () => {
-    closeSettingsSidebar();
-});
-
-settingsOverlay.addEventListener('click', () => {
-    closeSettingsSidebar();
-});
-
-// Handle logout
-// Find the existing logout button handler in script.js and replace it with this:
-
-// Handle logout
-logoutButton.addEventListener('click', (e) => {
-    e.preventDefault();
-    // Clear any user data or session if needed
-    localStorage.removeItem('user'); // If you're storing any user data
-    // Redirect to signup page
-    window.location.href = 'signup.html';
-});
-// Prevent clicks inside settings sidebar from closing it
-settingsSidebar.addEventListener('click', (event) => {
-    event.stopPropagation();
-});
-// Add this to script.js
-
-// Store bookmarks in localStorage
-let bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
-
-// Function to add or remove bookmark
-function toggleBookmark(article) {
-    const isBookmarked = bookmarks.some(bookmark => bookmark.title === article.title);
-    
-    if (isBookmarked) {
-        bookmarks = bookmarks.filter(bookmark => bookmark.title !== article.title);
-    } else {
-        bookmarks.push(article);
-    }
-    
-    localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
-    updateBookmarkIcon(article.title);
-}
-
-// Function to update bookmark icon
-function updateBookmarkIcon(articleTitle) {
-    const bookmarkButtons = document.querySelectorAll(`[data-article-title="${articleTitle}"]`);
-    const isBookmarked = bookmarks.some(bookmark => bookmark.title === articleTitle);
-    
-    bookmarkButtons.forEach(button => {
-        button.innerHTML = isBookmarked ? '★' : '☆';
-        button.style.color = isBookmarked ? '#ffd700' : '#000';
-    });
-}
-
-// Modify the article creation in fetchNews function
-async function fetchNews(category) {
-    try {
-        const response = await fetch(`https://newsapi.org/v2/everything?q=${encodeURIComponent(category)}&apiKey=ecfccc58d345415bb9818c6612a272aa`);
-        const data = await response.json();
-
-        const newsContainer = document.getElementById("news-container");
-        newsContainer.innerHTML = "";
-
-        data.articles.forEach((article) => {
-            const articleElement = document.createElement("div");
-            articleElement.classList.add("article");
-
-            // Add bookmark button to the news options
-            articleElement.innerHTML = `
-                <img src="${article.urlToImage || '/default-image.jpg'}" alt="News Image">
-                <h3>${article.title}</h3>
-                <p>${article.description || 'No description available.'}</p>
-                <a href="${article.url}" target="_blank">Read more</a>
-                <div class="news-options">
-                    <div class="vote-container">
-                        <button class="upvote">▲</button>
-                        <span class="vote-count">0</span>
-                        <button class="downvote">▼</button>
-                    </div>
-                    <button class="discuss">Comments</button>
-                    <button class="share">Share</button>
-                    <button class="bookmark" data-article-title="${article.title}">☆</button>
-                </div>
-                <div class="comments-section" style="display: none;">
-                    <textarea placeholder="Add a comment"></textarea>
-                    <button class="post-comment">Post Comment</button>
-                    <ul class="comments-list"></ul>
-                </div>
-            `;
-
-            newsContainer.appendChild(articleElement);
-            
-            // Update bookmark icon if article is already bookmarked
-            updateBookmarkIcon(article.title);
-        });
-    } catch (error) {
-        console.error('Error fetching news:', error);
-    }
-}
-
-// Add bookmark event handler to the event delegation
-document.getElementById("news-container").addEventListener("click", (event) => {
-    if (event.target.classList.contains("bookmark")) {
+    } else if (event.target.classList.contains("bookmark")) {
         const article = event.target.closest(".article");
         const articleData = {
             title: article.querySelector("h3").textContent,
@@ -330,5 +141,24 @@ document.getElementById("news-container").addEventListener("click", (event) => {
         };
         toggleBookmark(articleData);
     }
-    // ... existing event handlers ...
 });
+
+// Handle logout
+document.getElementById('logout-button').addEventListener('click', () => {
+    localStorage.removeItem('user');
+    window.location.href = 'signup.html';
+});
+
+// Apply restrictions based on user role
+function applyUserRestrictions() {
+    if (user.role === "guest") {
+        document.querySelectorAll(".bookmark, .post-comment").forEach(element => {
+            element.addEventListener("click", () => {
+                alert("Sign in to use this feature.");
+            });
+        });
+    }
+}
+
+// Initialize restrictions
+applyUserRestrictions();
